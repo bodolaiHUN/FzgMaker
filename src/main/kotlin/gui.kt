@@ -1,121 +1,92 @@
-import java.awt.BorderLayout
-import java.awt.GridLayout
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
-import javax.swing.*
+import javafx.scene.control.TextField
+import javafx.scene.control.ToggleGroup
+import javafx.stage.FileChooser
+import tornadofx.*
 
-class gui : JPanel(BorderLayout()), ActionListener {
-    init {
-        val radioButtonTT = JRadioButton(typeTT)
-        radioButtonTT.actionCommand = typeTT
-        val radioButtonA3 = JRadioButton(typeA3)
-        radioButtonA3.actionCommand = typeA3
-        val radioButtonA4 = JRadioButton(typeA4)
-        radioButtonA4.actionCommand = typeA4
-        val radioButtonQ3 = JRadioButton(typeQ3)
-        radioButtonQ3.actionCommand = typeQ3
-        val radioButtonQ5 = JRadioButton(typeQ5)
-        radioButtonQ5.actionCommand = typeQ5
-        var buttonPrNr = JButton("PrNr:")
-        buttonPrNr.actionCommand = pRnR
-        var buttonMentes = JButton("Mentés")
-        buttonMentes.actionCommand = mentes
+class MyView : View() {
 
+    var daisyField: TextField by singleAssign()
+    private val toggleGroup = ToggleGroup()
+    private val fileinput = FileInput()
+    private val fileoutput = FileOutput()
+    private val fileChooserOpen = FileChooser()
+    private val fileChooserSave = FileChooser()
+    private val type = Type()
+    private val daisy = Daisy()
 
-        val group = ButtonGroup()
-        group.add(radioButtonTT)
-        group.add(radioButtonA3)
-        group.add(radioButtonA4)
-        group.add(radioButtonQ3)
-        group.add(radioButtonQ5)
-
-        radioButtonTT.addActionListener(this)
-        radioButtonA3.addActionListener(this)
-        radioButtonA4.addActionListener(this)
-        radioButtonQ3.addActionListener(this)
-        radioButtonQ5.addActionListener(this)
-
-        buttonPrNr.addActionListener(this)
-        buttonMentes.addActionListener(this)
-
-        //Put the radio buttons in a column in a panel.
-        val radioPanel = JPanel(GridLayout(0, 1))
-        radioPanel.add(radioButtonA3)
-        radioPanel.add(radioButtonA4)
-        radioPanel.add(radioButtonQ3)
-        radioPanel.add(radioButtonQ5)
-        radioPanel.add(radioButtonTT)
-        radioPanel.add(buttonPrNr)
-        radioPanel.add(buttonMentes)
-
-        add(radioPanel, BorderLayout.LINE_START)
-        border = BorderFactory.createEmptyBorder(20, 20, 20, 20)
-
-
-    }
-
-    companion object {
-        internal var typeTT = "TT"
-        internal var typeA3 = "A3"
-        internal var typeA4 = "A4"
-        internal var typeQ3 = "Q3"
-        internal var typeQ5 = "Q5"
-        internal var pRnR = "PrNr"
-        internal var mentes = "Mentes"
-    }
-
-
-    /** Listens to the radio buttons.  */
-    override fun actionPerformed(e: ActionEvent) {
-        val type = e.actionCommand
-        when (type) {
-            typeA3, typeA4, typeQ3, typeQ5, typeTT -> println(type)
-            pRnR -> openPrNr()
-            mentes -> mentesFzg()
+    override val root = vbox {
+        hbox {
+            label("Daisy:")
+            daisyField = textfield()
         }
-    }
 
-    fun openPrNr() {
-        var fc = JFileChooser()
-        fc.fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES
-        val returnVal = fc.showOpenDialog(this@gui)
-
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            val file = fc.selectedFile
-            //This is where a real application would open the file.
-            println("Opening: " + file.name)
-        } else {
-            println("Open command cancelled by user.")
+        radiobutton("TT", toggleGroup) {
+            action { type.name = "TT" }
         }
-    }
-
-    fun mentesFzg() {
-        var fc = JFileChooser()
-        fc.fileSelectionMode = JFileChooser.FILES_AND_DIRECTORIES
-        val returnVal = fc.showSaveDialog(this@gui)
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            val file = fc.selectedFile
-            //This is where a real application would save the file.
-            println("Saving: " + file.name + "." + "/n")
-        } else {
-            println("Save command cancelled by user." + "/n")
+        radiobutton("A3", toggleGroup) {
+            action { type.name = "A3" }
         }
+        radiobutton("A4", toggleGroup) {
+            action { type.name = "A4" }
+        }
+        radiobutton("Q3", toggleGroup) {
+            action { type.name = "Q3" }
+        }
+        radiobutton("Q5", toggleGroup) {
+            action { type.name = "Q5" }
+        }
+
+        fileChooserOpen.extensionFilters.addAll(FileChooser.ExtensionFilter("PrNr", "*.txt"))
+        fileChooserOpen.title = "PR számok:"
+
+        button("PR számok") {
+            setOnAction {
+                val selectedFile = fileChooserOpen.showOpenDialog(primaryStage)
+                if (selectedFile != null) {
+                    fileinput.name = selectedFile.absolutePath
+                    println(fileinput.name)
+                    println(type.name)
+                }
+            }
+
+        }
+
+        //*TODO lehessen csak mappát választani, a fájl neve a daisy + '.fzg"*//
+        fileChooserSave.title = "FZG mentése:"
+
+        button("Válassz mappát") {
+            setOnAction {
+                val selectedFile = fileChooserOpen.showSaveDialog(primaryStage)
+                if (selectedFile != null) {
+                    fileoutput.name = selectedFile.absolutePath
+                    println(fileoutput.name)
+                    daisy.name = daisyField.text
+                    println(daisy.name)
+                }
+            }
+
+        }
+
     }
-
-
-    fun createAndShowGUI() {
-        //Create and set up the window.
-        val frame = JFrame("FzgMaker")
-        frame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-
-        //Create and set up the content pane.
-        val newContentPane = gui()
-        newContentPane.isOpaque = true //content panes must be opaque
-        frame.contentPane = newContentPane
-
-        //Display the window.
-        frame.pack()
-        frame.isVisible = true
-    }
-
 }
+
+class FileInput {
+    var name by property<String>()
+    fun nameProperty() = getProperty(FileInput::name)
+}
+
+class FileOutput {
+    var name by property<String>()
+    fun nameProperty() = getProperty(FileInput::name)
+}
+
+class Type {
+    var name by property<String>()
+    fun nameProperty() = getProperty(FileInput::name)
+}
+
+class Daisy {
+    var name by property<String>()
+    fun nameProperty() = getProperty(FileInput::name)
+}
+
