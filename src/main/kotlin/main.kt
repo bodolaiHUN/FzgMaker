@@ -1,3 +1,5 @@
+package fzgMaker
+
 import javafx.application.Application
 import tornadofx.*
 

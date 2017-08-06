@@ -1,3 +1,5 @@
+package fzgMaker
+
 import javafx.scene.control.TextField
 import javafx.scene.control.ToggleGroup
 import javafx.stage.FileChooser
@@ -11,8 +13,8 @@ class MyView : View() {
     private val fileoutput = FileOutput()
     private val fileChooserOpen = FileChooser()
     private val fileChooserSave = FileChooser()
-    private val type = Type()
-    private val daisy = Daisy()
+    val type = Type()
+    val daisy = Daisy()
 
     override val root = vbox {
         hbox {
@@ -70,23 +72,5 @@ class MyView : View() {
     }
 }
 
-class FileInput {
-    var name by property<String>()
-    fun nameProperty() = getProperty(FileInput::name)
-}
 
-class FileOutput {
-    var name by property<String>()
-    fun nameProperty() = getProperty(FileInput::name)
-}
-
-class Type {
-    var name by property<String>()
-    fun nameProperty() = getProperty(FileInput::name)
-}
-
-class Daisy {
-    var name by property<String>()
-    fun nameProperty() = getProperty(FileInput::name)
-}
 
